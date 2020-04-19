@@ -13,9 +13,9 @@ CONVERGENCE_THRESHOLD = 100
 def EM(X, W, H, center, scale):
     plt_num = 1
 
-    estimators = {'k_means_2': KMeans(n_clusters=2),
-                  'k_means_3': KMeans(n_clusters=3),
-                  'k_means_4': KMeans(n_clusters=4)}
+    estimators = {'Cluster_50': KMeans(n_clusters=50),
+                  'Cluster_6': KMeans(n_clusters=6),
+                  'Cluster_7': KMeans(n_clusters=7)}
 
     for name, est in estimators.items():
         print(name)
@@ -60,15 +60,13 @@ def EM(X, W, H, center, scale):
                 prev_Q = Q
 
             # M-Step
-
             # update means
             for j in range(J):
                 means[j,] = np.sum((X.T * w[:, j]).T, 0) / np.sum(w[:, j])
 
-            # update pi
             pi = np.sum(w, 0) / NUM_PIXELS
 
-        # plot convergence of Q as we progress through EM
+        # plot
         plt.figure(plt_num)
         plt.plot(list_of_q)
         plt.xlabel("Number of Iterations")
@@ -76,7 +74,7 @@ def EM(X, W, H, center, scale):
         plt.show()
         plt_num += 1
 
-        # display result as segmented image
+        # display segmented image
         segmented_img_rgb = np.zeros((H, W, 3), dtype=np.uint8)
         for i in range(H):
             for j in range(W):
@@ -86,18 +84,16 @@ def EM(X, W, H, center, scale):
                 segmented_img_rgb[i, j,] = means[pixel_segment_id,] * scale + center
 
         plt.figure(plt_num)
-        plt.imshow(segmented_img_rgb)  # show segmented image
+        plt.imshow(segmented_img_rgb)
         plt.show()
         plt_num += 1
 
 
-# read data
-img = cv2.imread('images/Lena.jpg')
+img = cv2.imread('images/fruit_color.jpg')
 (H, W, N) = img.shape
 data = img.reshape((H * W, N))
 data_centers = np.mean(data, 0)
 data_scale = np.std(data, 0)
 data = pre.scale(data)
 
-# run EM
 EM(data, W, H, data_centers, data_scale)
